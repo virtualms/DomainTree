@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    .error {
+        color: red;
+    }
+  </style>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm//vega@5"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm//vega-lite@4.8.1"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm//vega-embed@6"></script>
+</head>
+<body>
+  <div id="vis"></div>
+  <script>
+    (function(vegaEmbed) {
+      var spec = {"config": {"view": {"continuousWidth": 400, "continuousHeight": 300}}, "hconcat": [{"layer": [{"data": {"name": "data-595be8e8886efb6a8dace6cb3c2c73c4"}, "mark": "line", "encoding": {"color": {"value": "red"}, "x": {"type": "quantitative", "field": "x", "scale": {"zero": false}}, "y": {"type": "quantitative", "field": "y", "scale": {"zero": false}}}}, {"data": {"name": "data-918ef067966a62d67d3b37d4f8d96cf7"}, "mark": "line", "encoding": {"color": {"value": "red"}, "x": {"type": "quantitative", "field": "x", "scale": {"zero": false}}, "y": {"type": "quantitative", "field": "y", "scale": {"zero": false}}}}, {"data": {"name": "data-9cfe51890e461746d034ce97de8a761f"}, "mark": "line", "encoding": {"color": {"value": "red"}, "x": {"type": "quantitative", "field": "x", "scale": {"zero": false}}, "y": {"type": "quantitative", "field": "y", "scale": {"zero": false}}}}, {"data": {"name": "data-25222c0eeefa416f9fa293f67a84aeeb"}, "mark": "line", "encoding": {"color": {"value": "red"}, "x": {"type": "quantitative", "field": "x", "scale": {"zero": false}}, "y": {"type": "quantitative", "field": "y", "scale": {"zero": false}}}}, {"data": {"name": "data-e18166ec5d9778370d534c73972eb76c"}, "mark": "line", "encoding": {"color": {"value": "red"}, "x": {"type": "quantitative", "field": "x", "scale": {"zero": false}}, "y": {"type": "quantitative", "field": "y", "scale": {"zero": false}}}}, {"data": {"name": "data-4c6bc9cc7fdc087b79cd4f2140852452"}, "mark": "line", "encoding": {"color": {"value": "red"}, "x": {"type": "quantitative", "field": "x", "scale": {"zero": false}}, "y": {"type": "quantitative", "field": "y", "scale": {"zero": false}}}}, {"data": {"name": "data-c8dd1888cd88fba27ca69427bd069f2e"}, "mark": "line", "encoding": {"color": {"value": "red"}, "x": {"type": "quantitative", "field": "x", "scale": {"zero": false}}, "y": {"type": "quantitative", "field": "y", "scale": {"zero": false}}}}, {"data": {"name": "data-9cfe51890e461746d034ce97de8a761f"}, "mark": "line", "encoding": {"color": {"value": "red"}, "x": {"type": "quantitative", "field": "x", "scale": {"zero": false}}, "y": {"type": "quantitative", "field": "y", "scale": {"zero": false}}}}]}], "$schema": "https://vega.github.io/schema/vega-lite/v4.8.1.json", "datasets": {"data-595be8e8886efb6a8dace6cb3c2c73c4": [{"x": 0.2271, "y": 0.0}, {"x": 1.0, "y": 0.0}], "data-918ef067966a62d67d3b37d4f8d96cf7": [{"x": 0.2271, "y": 1.0}, {"x": 1.0, "y": 1.0}], "data-9cfe51890e461746d034ce97de8a761f": [{"x": 0.2271, "y": 0.0}, {"x": 0.2271, "y": 1.0}], "data-25222c0eeefa416f9fa293f67a84aeeb": [{"x": 1, "y": 0}, {"x": 1, "y": 1}], "data-e18166ec5d9778370d534c73972eb76c": [{"x": 0.0, "y": 0.0}, {"x": 0.2271, "y": 0.0}], "data-4c6bc9cc7fdc087b79cd4f2140852452": [{"x": 0.0, "y": 1.0}, {"x": 0.2271, "y": 1.0}], "data-c8dd1888cd88fba27ca69427bd069f2e": [{"x": 0, "y": 0}, {"x": 0, "y": 1}]}};
+      var embedOpt = {"mode": "vega-lite"};
+
+      function showError(el, error){
+          el.innerHTML = ('<div class="error" style="color:red;">'
+                          + '<p>JavaScript Error: ' + error.message + '</p>'
+                          + "<p>This usually means there's a typo in your chart specification. "
+                          + "See the javascript console for the full traceback.</p>"
+                          + '</div>');
+          throw error;
+      }
+      const el = document.getElementById('vis');
+      vegaEmbed("#vis", spec, embedOpt)
+        .catch(error => showError(el, error));
+    })(vegaEmbed);
+
+  </script>
+</body>
+</html>
