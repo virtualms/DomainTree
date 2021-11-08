@@ -30,6 +30,7 @@ COLORS = cycle(['black', 'red', 'purple', 'fuchsia', 'green', 'lime', 'olive', '
 
 
 class DomainNode(NodeMixin):
+
     """
     DomainNode represent the node of DomainTree.
 
@@ -365,6 +366,7 @@ class DomainTree:
             verbose and print(f"__Explored {node.name}")
             var = node.split_desc["split_var"]
             value = node.split_desc["split_value"]
+
             if value <= x[var] < node.domains[var][1]:
                 rec_node = node.children[1]
                 return self.__recursive_search__(rec_node, x, verbose)
@@ -409,15 +411,9 @@ class DomainTree:
         :return: node.regression.predict(x)
         :rtype: float
         """
-        # give me the first (and only) leaf for which node.contains(x)
-        try:
-            # node = next(node for node in self.leaves if node.contains(x))
-            node = self.__recursive_search__(self.tree, frozendict(x), verbose=False)
 
-        #TODO -inf IN CASO DI ERRORE O LANCIAMO UN'ECCEZIONE?
-        except (StopIteration, NodeNotFoundException) as e:
-            print(f"{e}__{x} is not in tree!")
-            return -np.inf
+        # node = next(node for node in self.leaves if node.contains(x))
+        node = self.__recursive_search__(self.tree, frozendict(x), verbose=False)
 
         # sorting x
         values = [x[k] for k in sorted(x)]

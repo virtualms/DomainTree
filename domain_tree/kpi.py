@@ -53,8 +53,6 @@ def matching_bounds(original, approx, conf: float) -> bool:
 
 def matching_intervals(original: DomainNode, approx: DomainNode, conf: float) -> bool:
     """ Checks if 2 intervals match in respect to a confidence interval."""
-    #out_of_bounds = (v for v in original.variables if not matching_bounds(original.domains[v], approx.domains[v], conf))
-
     # out_of_bounds = (not matching_bounds(original.domains[v], approx.domains[v], conf) for v in original.variables)
     # return not any(out_of_bounds)
 
