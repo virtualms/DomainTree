@@ -37,7 +37,7 @@ class TestKPI(unittest.TestCase):
         self.assertTrue(kpi.matching_bounds(a, b, 0))
 
         a = (0, 1)
-        b = (0, 5)
+        b = (0, 1.01)
         self.assertFalse(kpi.matching_bounds(a, b, 0))
 
         a = (0, 1)
@@ -47,17 +47,18 @@ class TestKPI(unittest.TestCase):
         self.assertFalse(kpi.matching_bounds(a, b, 0.4999))
         self.assertFalse(kpi.matching_bounds(b, a, 0.4999))
 
-        # TODO così vero solo se b compreso in a con intervallo di confidenza. Ma il contrario non è vero. Lo vogliamo?
-        # e invece funziona, che ho fatto???
         a = (0.3, 0.6)
         b = (0.2, 0.7)
         self.assertTrue(kpi.matching_bounds(a, b, 0.1))
         self.assertTrue(kpi.matching_bounds(b, a, 0.1))
-
-        a = (0.2, 0.7)
-        b = (0.3, 0.6)
         self.assertFalse(kpi.matching_bounds(a, b, 0))
         self.assertFalse(kpi.matching_bounds(b, a, 0))
+
+
+        #float precision error
+        a = (0.4, 0.6)
+        b = (0.3, 0.7)
+        self.assertTrue(kpi.matching_bounds(a, b, 0.1))
 
         a = (-0.3, -0.6)
         b = (-0.2, -0.7)
@@ -66,7 +67,10 @@ class TestKPI(unittest.TestCase):
         self.assertFalse(kpi.matching_bounds(a, b, 0))
         self.assertFalse(kpi.matching_bounds(b, a, 0))
 
+
+
     def test_matching_intervals(self):
+        #TODO very naive
         self.assertFalse(kpi.matching_intervals(DomainNode(domains=self.d0, name="node"),
                                                 DomainNode(domains=self.d1, name="node"), 0))
         self.assertTrue(kpi.matching_intervals(DomainNode(domains=self.d0, name="node"),
@@ -76,20 +80,18 @@ class TestKPI(unittest.TestCase):
 
     def test_check_matching_partitions(self):
         # conf=0
-        self.assertEqual(kpi.check_matching_partitions(self.original_m, self.original_m, n=1, d=0),
-                         len(self.original_m.leaves))
+        part_num = len(self.original_m.leaves)
+        self.assertEqual(kpi.check_matching_partitions(self.original_m, self.original_m, n=1, d=0), part_num)
         self.assertEqual(kpi.check_matching_partitions(self.original_m, self.blank_m, n=1, d=0), 0)
 
         # conf=1
-        self.assertEqual(kpi.check_matching_partitions(self.original_m, self.approx_m, n=1, d=4),
-                         len(self.original_m.leaves))
+        self.assertEqual(kpi.check_matching_partitions(self.original_m, self.approx_m, n=1, d=4), part_num)
         self.assertEqual(kpi.check_matching_partitions(self.original_m, self.blank_m, n=1, d=4), 1)
 
         # conf=0.5
         orig = DomainTree(self.d0, min_split=0.25, depth_max=3)
         appr = DomainTree(self.d0, min_split=0.25, depth_max=3)
-        self.assertIn(kpi.check_matching_partitions(orig, appr, n=2, d=4),
-                      [len(self.original_m.leaves) - 2, len(self.original_m.leaves) - 1, len(self.original_m.leaves)])
+        self.assertIn(kpi.check_matching_partitions(orig, appr, n=2, d=4), [part_num - 2, part_num - 1, part_num])
 
 
 if __name__ == "__main__":

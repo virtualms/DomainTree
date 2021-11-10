@@ -46,9 +46,14 @@ def check_r2(approx_model):
 
 def matching_bounds(original, approx, conf: float) -> bool:
     """ Checks if 2 bounds match in respect to a confidence interval."""
-    sx = original[0] - conf <= approx[0] <= original[0] + conf
-    dx = original[1] - conf <= approx[1] <= original[1] + conf
-    return sx and dx
+    # sx0 = original[0] - conf <= approx[0] <= original[0] + conf
+    # dx0 = original[1] - conf <= approx[1] <= original[1] + conf
+    # float precision ...
+
+    sx0 = round(original[0] - conf, 8) <= approx[0] <= round(original[0] + conf, 8)
+    dx0 = round(original[1] - conf, 8) <= approx[1] <= round(original[1] + conf, 8)
+
+    return sx0 and dx0
 
 
 def matching_intervals(original: DomainNode, approx: DomainNode, conf: float) -> bool:
@@ -79,8 +84,7 @@ def check_matching_partitions(original_m: DomainTree, approx_model, n: int, d: i
     conf = compute_conf(n, d)
     # print(f"{n=}, {d=} {conf=}")
     for approx_leaf in approx_model.leaves:
-        partition_match = (original_leaf for original_leaf in original_m.leaves if
-                           matching_intervals(original_leaf, approx_leaf, conf))
+        partition_match = (matching_intervals(original_leaf, approx_leaf, conf) for original_leaf in original_m.leaves)
         count += any(partition_match)
 
     return count
@@ -92,7 +96,7 @@ def summary(original_m, approx_model, n, d):
     matching_partitions_ = check_matching_partitions(original_m, approx_model, n, d)
 
     print(f"{14 * '-'}SUMMARY{14 * '-'}")
-    print(f"PARTITIONS: {original_partitions=}, {approx_partitions=} , {delta_p=}")
+    print(f"PARTITIONS: {original_partitions=:}, {approx_partitions=} , {delta_p=}")
     print(f"R2: {avg_r2=}, {delta_r2=}, {r2_min=}, {r2_max=}")
     print(f"MATCHING PARTITIONS: {matching_partitions_=}")
     print(f"{35 * '-'}")
@@ -100,9 +104,9 @@ def summary(original_m, approx_model, n, d):
 
 def main():
     d = {"x0": (0, 1), "x1": (0, 1)}
-    tree1 = DomainTree(domains=d, depth_max=3)
+    tree1 = DomainTree(domains=d, depth_max=5, min_split=0.1)
     tree2 = copy.deepcopy(tree1)
-    tree3 = DomainTree(domains=d, depth_max=3)
+    tree3 = DomainTree(domains=d, depth_max=5, min_split=0.1)
 
     # tree1.print_tree()
     # tree1.visualize_all_domains()
@@ -113,11 +117,13 @@ def main():
     # print(f"{original_partitions}, {approx_partitions}, {delta}")
     # print(check_matching_partitions(tree1, tree2, 10000, 4))
 
-    summary(tree1, tree3, 10000, 4)
-    comparison = alt.hconcat(tree1.visualize_all_domains(mode="none"), tree3.visualize_all_domains(mode="none"))
+    #conf = 0.5 * sqrt(d) / n
+    summary(tree1, tree3, n=10000, d=4)
+    layered = alt.layer(tree1.visualize_domains(var1="x0", var2="x1", mode="none"),
+              tree3.visualize_domains(var1="x0", var2="x1", mode="none", color="red"))
+    comparison = alt.hconcat(tree1.visualize_all_domains(mode="none"), tree3.visualize_all_domains(mode="none"), layered)
     comparison.show(embed_opt=True, open_browser=True)
-    alt.layer(tree1.visualize_domains(var1="x0", var2="x1", mode="none"),
-              tree3.visualize_domains(var1="x0", var2="x1", mode="none", color="red")).show(open_browser=True)
+
 
 
 if __name__ == "__main__":

@@ -32,22 +32,27 @@ COLORS = cycle(['black', 'red', 'purple', 'fuchsia', 'green', 'lime', 'olive', '
 class DomainNode(NodeMixin):
 
     """
-    DomainNode represent the node of DomainTree.
+    DomainNode represents the node of DomainTree.
 
     Attributes
     ----------
-    name: str
-        name base to assign to the single nodes
-    domains: dictionary
-        domains of the variable in the node, it is a dictionary e.g. {"x0": (0, 1), "x1": (-2, 5.44)}
-    variables: list
-        list of the variables (domains.keys())
-    parent: DomainNode
-        the parent of the node
-    val: float
-        val on which we compute the stop criterion. Is the max depth reachable from that node
-    split_desc: str
-        describe the split occurred-->maybe it is better a dictionary
+    :param name: name base to assign to the single nodes
+    :type name: str
+
+    :param domains: domains of the variable in the node, it is a dictionary e.g. {"x0": (0, 1), "x1": (-2, 5.44)}
+    :type domains: dict, frozendict
+
+    :param variables: list of the variables (domains.keys())
+    :type variables: list
+
+    :param parent: the parent of the node
+    :type parent: DomainNode
+
+    :param val: val on which we compute the stop criterion. Is the max depth reachable from that node
+    :type val: float
+
+    :param split_desc: describe the split occurred
+    :type split_desc: dict
 
     Methods
     ----------
@@ -130,16 +135,13 @@ class DomainNode(NodeMixin):
         :return: True/False
         :rtype: bool
         """
-        # out_of_bounds? There is an x coordinate which for which the bounds are not satisfied?
-        # Contains = opposite of out_of_bounds
-        out_of_bounds = (var for var in self.variables if not (self.domains[var][0] <= x[var] < self.domains[var][1]))
-        res = not any(out_of_bounds)
+        # Does a variable out of bound exists?
+        # out_of_bounds = (not (self.domains[var][0] <= x[var] < self.domains[var][1]) for var in self.variables)
+        # res = not any(out_of_bounds)
 
-        # res = True
-        # for var in self.variables:
-        #     if not (self.domains[var][0] <= x[var] < self.domains[var][1]):
-        #         res = False
-        #         break
+        # Are all variable in bounds?
+        in_bounds = (self.domains[var][0] <= x[var] < self.domains[var][1] for var in self.variables)
+        res = all(in_bounds)
 
         return res
 
@@ -253,7 +255,6 @@ class DomainTree:
         len_ = lambda bounds, split: abs(bounds[1] - bounds[0]) * split
         min_ranges = {d: len_(self.domains[d], min_split) for d in self.domains}
         range_length = lambda bound: abs(bound[1] - bound[0])
-        # MOLTIPLICATO PER DUE --> LEGGI LE NOTE! ALTRIMENTI SI OTTENGONO DOMINI SBALLATI
         good_vars = lambda n, min_ranges: [
             d
             for d in n.domains
