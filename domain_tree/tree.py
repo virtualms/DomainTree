@@ -4,7 +4,7 @@ from anytree import NodeMixin, RenderTree
 from anytree.search import find
 from anytree.exporter import DotExporter
 
-from functools import lru_cache
+from functools import lru_cache, cached_property
 from frozendict import frozendict
 from deprecated import deprecated
 
@@ -75,12 +75,16 @@ class DomainNode(NodeMixin):
         self.name = name
         self.parent = parent
 
-        self.variables = list(domains.keys())  # [x0, x1, x2 ... ]
+        #self.variables = list(domains.keys())  # [x0, x1, x2 ... ]
         self.domains = domains  # {"x0": (-1, 2), "x1": (0, 12)...}
 
         self.split_desc = split_desc
 
         self.regression = None
+
+    @cached_property
+    def variables(self):
+        return list(self.domains.keys())
 
     def __str__(self):
         return "Hi! I'm " + self.name
@@ -214,7 +218,7 @@ class DomainTree:
     def __init__(self, domains, min_split=0, name="NODE", depth_max=3, random=0, coef_bounds=(-5, 5), rounding=4):
         self.name = name
         self.domains = frozendict({k: domains[k] for k in sorted(domains)})
-        self.variables = sorted(list(domains.keys()))
+        #self.variables = sorted(list(domains.keys()))
         self.depth_max = depth_max
         self.random = random
         self.rounding = rounding
@@ -223,6 +227,10 @@ class DomainTree:
 
         self.tree, self.leaves = self.__generate_tree_domains(name=self.name, domains=self.domains, random=random,
                                                               val=self.depth_max, min_split=min_split)
+
+    @cached_property
+    def variables(self):
+        return sorted(list(self.domains.keys()))
 
     def __select_variable(self, variables):
         """
