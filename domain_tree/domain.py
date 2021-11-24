@@ -99,6 +99,10 @@ class RealInterval:
 
         return interval_sx, interval_dx
 
+    #dictionary/array like access
+    def __getitem__(self, item):
+        return self.bounds[item]
+
     def __repr__(self):
         left_par = lambda included: "[" if included else "("
         right_par = lambda included: "]" if included else ")"
@@ -185,7 +189,7 @@ class RealDomain(AbstractDomain, ABC):
 
     def get(self, var):
         return self.domains[var]
-         
+        
     def get_variables(self):
         return list(self.domains.keys())
 
@@ -221,11 +225,11 @@ class RealDomain(AbstractDomain, ABC):
 
     def insert(self, var: str, interval: RealInterval):
         self.domains[var] = interval
-      
+
     #dictionary/array like access
     def __getitem__(self, item):
-       return self.domains[item]
-
+        return self.domains[item]
+        
     def __repr__(self):
         n = 33
         repr = ""
@@ -317,3 +321,5 @@ if __name__ == "__main__":
     i_s = {f"x{x}": RealInterval(bounds=(rand_bounds()), included=(bool(r.getrandbits(1)), bool(r.getrandbits(1)))) for x in range(15)}
     df = RealDomain(i_s)
     print(df)
+
+    print(i0[0])
