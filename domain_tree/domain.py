@@ -185,6 +185,9 @@ class RealDomain(AbstractDomain, ABC):
 
     def get(self, var):
         return self.domains[var]
+         
+    def get_variables(self):
+        return list(self.domains.keys())
 
     def set_all(self, domains):
         self.domains = domains
