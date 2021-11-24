@@ -376,7 +376,7 @@ class DomainTree:
             var = node.split_desc["split_var"]
             value = node.split_desc["split_value"]
 
-            if value <= x[var] < node.domains[var][1]:
+            if value <= x[var] < node.domains[var][1]: # [, ) [, ) [, ) [, )
                 rec_node = node.children[1]
                 return self.__recursive_search__(rec_node, x, verbose)
             elif node.domains[var][0] <= x[var] < value:
