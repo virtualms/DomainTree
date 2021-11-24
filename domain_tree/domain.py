@@ -221,6 +221,10 @@ class RealDomain(AbstractDomain, ABC):
 
     def insert(self, var: str, interval: RealInterval):
         self.domains[var] = interval
+      
+    #dictionary/array like access
+    def __getitem__(self, item):
+       return self.domains[item]
 
     def __repr__(self):
         n = 33
