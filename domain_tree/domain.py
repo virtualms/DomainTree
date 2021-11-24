@@ -1,6 +1,14 @@
 from abc import ABC, abstractmethod
 import copy
 
+"""
+* For Node domains use RealDomain
+* For the split use RealDomain.split(), which returns two non overlapped cut domain
+* It is not mandatory to look at Real Interval logic because is intrisic in RealDomain
+* Also AbstractDomain is more a defect of form that a strictly necessary hierarchy 
+ (but if we would have needed categorical variables...)
+* For usage look at the main which contains a simple demo
+"""
 
 # necessary?
 class Point:
