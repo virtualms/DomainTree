@@ -21,6 +21,9 @@ class Point:
     def __repr__(self):
         return str(self.coordinates)
 
+    def __getitem__(self, item):
+        return self.coordinates[item]
+    
     def get(self, var):
         return self.coordinates[var]
 
@@ -98,6 +101,10 @@ class RealInterval:
         interval_dx = RealInterval(bounds_dx, included_dx)
 
         return interval_sx, interval_dx
+
+    @property
+    def width(self):
+        return self.bounds[1] - self.bounds[0]
 
     #dictionary/array like access
     def __getitem__(self, item):
@@ -227,7 +234,7 @@ class RealDomain(AbstractDomain, ABC):
         self.domains[var] = interval
 
     #dictionary/array like access
-    def __getitem__(self, item):
+    def __getitem__(self, item) -> RealInterval:
         return self.domains[item]
         
     def __repr__(self):
@@ -322,8 +329,6 @@ if __name__ == "__main__":
     df = RealDomain(i_s)
     print(df)
 
-    print(i0[0])
-    
     #playing with __getitem__
     print(df["x0"].bounds)
     print(df["x0"].included)
