@@ -323,3 +323,8 @@ if __name__ == "__main__":
     print(df)
 
     print(i0[0])
+    
+    #playing with __getitem__
+    print(df["x0"].bounds)
+    print(df["x0"].included)
+    print(df["x0"])
