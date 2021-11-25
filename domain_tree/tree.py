@@ -21,16 +21,16 @@ from graphviz import Source, render
 import cv2
 import altair as alt
 from sequencer import Sequencer
-
+from domain import Split, RealDomain
 
 COLORS = cycle(['black', 'red', 'purple', 'fuchsia', 'green', 'lime', 'olive', 'yellow', 'blue', 'orange',
-                'burlywood','pink'])
+                'burlywood', 'pink'])
 
-#rand.seed(42)
+
+# rand.seed(42)
 
 
 class DomainNode(NodeMixin):
-
     """
     DomainNode represents the node of DomainTree.
 
@@ -69,14 +69,13 @@ class DomainNode(NodeMixin):
         kills the node, instantly setting to 0 its max depth
     """
 
-    def __init__(self, name, domains, parent=None, val=5, split_desc=frozendict({"node_type": "ROOT"})):
+    def __init__(self, name, domains: RealDomain, parent=None, val=5, split_desc=Split(node_type="ROOT")):
         # super(self).__init__()
         self.val = val
         self.name = name
         self.parent = parent
 
-        #self.variables = list(domains.keys())  # [x0, x1, x2 ... ]
-        self.domains = domains  # {"x0": (-1, 2), "x1": (0, 12)...}
+        self.domains = domains  # {"x0": [-1, 2), "x1": [0, 12)...}
 
         self.split_desc = split_desc
 
@@ -84,13 +83,13 @@ class DomainNode(NodeMixin):
 
     @cached_property
     def variables(self):
-        return list(self.domains.keys())
+        return self.domains.get_variables()
 
     def __str__(self):
         return "Hi! I'm " + self.name
 
     def __repr__(self):
-        return f"{self.name}: {dict(self.domains)}___{dict(self.split_desc)}"
+        return f"{self.name}: {self.domains.to_str()}___{self.split_desc}"
 
     # do something, simulating an operation
     def dostuff(self, random: float = 0):  # sourcery skip: assign-if-exp
@@ -129,7 +128,7 @@ class DomainNode(NodeMixin):
         lm.intercept_ = interc
         self.regression = lm
 
-    #TODO, si può pensare una classe point/domain etc. invece dei dizionari...
+    # TODO, si può pensare una classe point/domain etc. invece dei dizionari...
     def contains(self, x) -> bool:
         # sourcery skip: inline-immediately-returned-variable
         """
@@ -144,10 +143,10 @@ class DomainNode(NodeMixin):
         # res = not any(out_of_bounds)
 
         # Are all variable in bounds?
-        in_bounds = (self.domains[var][0] <= x[var] < self.domains[var][1] for var in self.variables)
-        res = all(in_bounds)
+        # in_bounds = (self.domains[var][0] <= x[var] < self.domains[var][1] for var in self.variables)
+        # res = all(in_bounds)
 
-        return res
+        return self.domains.contains(x)
 
     def kill(self):
         self.val = 0
@@ -215,10 +214,11 @@ class DomainTree:
 
     """
 
-    def __init__(self, domains, min_split=0, name="NODE", depth_max=3, random=0, coef_bounds=(-5, 5), rounding=4):
+    def __init__(self, domains: RealDomain, min_split=0, name="NODE", depth_max=3, random=0, coef_bounds=(-5, 5),
+                 rounding=4):
         self.name = name
-        self.domains = frozendict({k: domains[k] for k in sorted(domains)})
-        #self.variables = sorted(list(domains.keys()))
+        self.domains = domains
+        # self.variables = sorted(list(domains.keys()))
         self.depth_max = depth_max
         self.random = random
         self.rounding = rounding
@@ -230,7 +230,7 @@ class DomainTree:
 
     @cached_property
     def variables(self):
-        return sorted(list(self.domains.keys()))
+        return self.domains.get_variables()
 
     def __select_variable(self, variables):
         """
@@ -261,14 +261,13 @@ class DomainTree:
             returns the variables that respect the minimum split criterion
         """
         len_ = lambda bounds, split: abs(bounds[1] - bounds[0]) * split
-        min_ranges = {d: len_(self.domains[d], min_split) for d in self.domains}
+        min_ranges = {d: len_(self.domains[d], min_split) for d in self.domains.keys()}
         range_length = lambda bound: abs(bound[1] - bound[0])
         good_vars = lambda n, min_ranges: [
             d
-            for d in n.domains
+            for d in n.domains.keys()
             if (range_length(n.domains[d]) >= min_ranges[d] * 2)
         ]
-
 
         # stack of the open nodes
         stack = deque()
@@ -298,23 +297,17 @@ class DomainTree:
                 split_value = a + w + ((b - w) - (a + w)) * rand.random()
 
                 split_value = round(split_value, self.rounding)
-                bounds_sx = (a, split_value)
-                bounds_dx = (split_value, b)
 
                 # changing bounds
-                domains_sx = dict(node.domains)
-                domains_dx = dict(node.domains)
-
-                domains_sx[variable] = bounds_sx
-                domains_dx[variable] = bounds_dx
+                domains_sx, domains_dx = node.domains.split(split_value=split_value, var=variable)
 
                 desc = {"node_type": "NODE", "split_var": variable, "split_value": split_value}
-                node.split_desc = frozendict(desc)
+                node.split_desc = Split(node_type="NODE", split_var=variable, split_value=split_value)
 
                 val = node.val
-                node1 = DomainNode(self.name + str(s.get_seq_num()), domains=frozendict(domains_sx), val=val,
+                node1 = DomainNode(self.name + str(s.get_seq_num()), domains=domains_sx, val=val,
                                    parent=node)
-                node2 = DomainNode(self.name + str(s.get_seq_num()), domains=frozendict(domains_dx), val=val,
+                node2 = DomainNode(self.name + str(s.get_seq_num()), domains=domains_dx, val=val,
                                    parent=node)
 
                 stack.append(node1)
@@ -324,8 +317,8 @@ class DomainTree:
             else:
                 node.kill()
                 node.generate_regression(a=self.coef_bounds[0], b=self.coef_bounds[1])
-                node.split_desc = frozendict({"node_type": "LEAF", "intercept": node.regression.intercept_,
-                                              "coefficients": node.regression.coef_})
+                node.split_desc = Split(node_type="LEAF", intercept=node.regression.intercept_,
+                                        coefficients=node.regression.coef_)
                 leaves.append(node)
 
         # resetting sequencer
@@ -359,6 +352,12 @@ class DomainTree:
                 return self.__recursive_search(children[1], x)
 
     # optimized decision tree search
+    def greater(self, a, b, included):
+        return a >= b if included[0] else a > b
+
+    def less(self, a, b, included):
+        return a <= b if included[1] else a < b
+
     @lru_cache(maxsize=128, typed=False)
     def __recursive_search__(self, node: DomainNode, x, verbose=False) -> DomainNode:
         """
@@ -376,10 +375,19 @@ class DomainTree:
             var = node.split_desc["split_var"]
             value = node.split_desc["split_value"]
 
-            if value <= x[var] < node.domains[var][1]: # [, ) [, ) [, ) [, )
+            # if value <= x[var] < node.domains[var][1]:  # [, ) [, ) [, ) [, )
+            #     rec_node = node.children[1]
+            #     return self.__recursive_search__(rec_node, x, verbose)
+            # elif node.domains[var][0] <= x[var] < value:
+            #     rec_node = node.children[0]
+            #     return self.__recursive_search__(rec_node, x, verbose)
+            # else:
+            #     raise NodeNotFoundException(f"{x} is non in tree")
+
+            if self.greater(x[var], value, node.domains[var].included) and self.less(x[var], node.domains[var][1], node.domains[var].included):
                 rec_node = node.children[1]
                 return self.__recursive_search__(rec_node, x, verbose)
-            elif node.domains[var][0] <= x[var] < value:
+            elif self.greater(x[var], node.domains[var][0], node.domains[var].included) and self.less(x[var], value, node.domains[var].included):
                 rec_node = node.children[0]
                 return self.__recursive_search__(rec_node, x, verbose)
             else:
@@ -465,7 +473,7 @@ class DomainTree:
         figures = []
         for leaf in self.leaves:
             # searching the y value for x_n bounds
-            x = leaf.domains[var]
+            x = leaf.domains[var].bounds
             y_a = leaf.regression.predict(np.array([[x[0]]]))
             y_b = leaf.regression.predict(np.array([[x[1]]]))
             y = (y_a, y_b)

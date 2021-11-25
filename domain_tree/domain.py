@@ -10,10 +10,11 @@ import copy
 * For usage look at the main which contains a simple demo
 """
 
+
 # necessary?
 class Point:
 
-    #coordinates
+    # coordinates
 
     def __init__(self, coordinates: dict):
         self.coordinates = coordinates
@@ -23,7 +24,7 @@ class Point:
 
     def __getitem__(self, item):
         return self.coordinates[item]
-    
+
     def get(self, var):
         return self.coordinates[var]
 
@@ -106,7 +107,7 @@ class RealInterval:
     def width(self):
         return self.bounds[1] - self.bounds[0]
 
-    #dictionary/array like access
+    # dictionary/array like access
     def __getitem__(self, item):
         return self.bounds[item]
 
@@ -196,9 +197,13 @@ class RealDomain(AbstractDomain, ABC):
 
     def get(self, var):
         return self.domains[var]
-        
+
     def get_variables(self):
         return list(self.domains.keys())
+
+    #LEGACY
+    def keys(self):
+        return self.get_variables()
 
     def set_all(self, domains):
         self.domains = domains
@@ -233,14 +238,14 @@ class RealDomain(AbstractDomain, ABC):
     def insert(self, var: str, interval: RealInterval):
         self.domains[var] = interval
 
-    #dictionary/array like access
+    # dictionary/array like access
     def __getitem__(self, item) -> RealInterval:
         return self.domains[item]
-        
+
     def __repr__(self):
         n = 33
         repr = ""
-        #repr += "RealDomain: \n"
+        # repr += "RealDomain: \n"
         repr += "-" * n
         repr += "\n"
         for var, interval in self.domains.items():
@@ -250,6 +255,29 @@ class RealDomain(AbstractDomain, ABC):
         repr += "-" * n
 
         return repr
+
+    def to_str(self):
+        return {x: str(val) for x, val in self.domains.items()}
+
+
+class Split:
+    def __init__(self, split_var="none", split_value="none", node_type="NODE", intercept=None, coefficients=None):
+        self.node_type = node_type
+        self.split_var = split_var
+        self.split_value = split_value
+        self.intercept = intercept
+        self.coefficients = coefficients
+
+    @property
+    def dict_view(self):
+        return {"node_type": self.node_type, "split_var": self.split_var, "split_value": self.split_value,
+                "intercept": self.intercept, "coefficients": None}
+
+    def __getitem__(self, item):
+        return self.dict_view[item]
+
+    def __repr__(self):
+        return str(self.dict_view)
 
 
 if __name__ == "__main__":
@@ -261,7 +289,7 @@ if __name__ == "__main__":
     dom = RealDomain(d)
 
     # test
-    print("1" + "*"*40)
+    print("1" + "*" * 40)
     print(i0)
     print(i1)
     print("")
@@ -320,16 +348,19 @@ if __name__ == "__main__":
 
     import random as r
 
+
     def rand_bounds():
         a = round(r.random(), 3)
         b = round(r.random(), 3)
         return (a, b) if a < b else (b, a)
 
-    i_s = {f"x{x}": RealInterval(bounds=(rand_bounds()), included=(bool(r.getrandbits(1)), bool(r.getrandbits(1)))) for x in range(15)}
+
+    i_s = {f"x{x}": RealInterval(bounds=(rand_bounds()), included=(bool(r.getrandbits(1)), bool(r.getrandbits(1)))) for
+           x in range(15)}
     df = RealDomain(i_s)
     print(df)
 
-    #playing with __getitem__
+    # playing with __getitem__
     print(df["x0"].bounds)
     print(df["x0"].included)
     print(df["x0"])

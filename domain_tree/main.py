@@ -7,13 +7,14 @@ import numpy as np
 import pandas as pd
 import webbrowser
 import time
+from domain import RealDomain, RealInterval
 
 # (n+1)/2 leaves
 DEPTH = 5
 NODE_NAME = "node"
 K = 1
 VARIABLES = ["x" + str(i) for i in range(K)]
-DOMAINS = {val: (0, 1) for i, val in enumerate(VARIABLES)}
+DOMAINS = RealDomain({val: RealInterval((0, 1), (True, False)) for i, val in enumerate(VARIABLES)})
 x = {v: 0.5 for v in VARIABLES}
 RANDOM = 0 # [0, 1]
 MIN_SPLIT = 0.1 # [0, 0.5]

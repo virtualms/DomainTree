@@ -1,5 +1,6 @@
 import unittest
 from domain_tree.tree import DomainTree, DomainNode, NodeNotFoundException
+from domain_tree.domain import RealDomain, RealInterval
 
 
 class TestDomainTree(unittest.TestCase):
@@ -13,7 +14,8 @@ class TestDomainTree(unittest.TestCase):
         pass
 
     def setUp(self):
-        self.d0 = {"x0": (0, 1)}
+        # self.d0 = {"x0": (0, 1)}
+        self.d0 = RealDomain({"x0": RealInterval((0, 1), (True, False))})
 
     def tearDown(self) -> None:
         pass
@@ -43,7 +45,9 @@ class TestDomainTree(unittest.TestCase):
         x = {"x0": 0.5}
         self.assertTrue(tree.contains(x))
 
-        tree = DomainTree(domains={"x0": (0, 1), "x1": (2, 3)}, min_split=0.5)
+        #d = {"x0": (0, 1), "x1": (2, 3)}
+        d = RealDomain({"x0": RealInterval((0, 1), (True, False)), "x1": RealInterval((2, 3), (True, False))})
+        tree = DomainTree(domains=d, min_split=0.5)
         x = {"x0": 0, "x1": 2}
         self.assertTrue(tree.contains(x))
 
@@ -65,14 +69,15 @@ class TestDomainTree(unittest.TestCase):
         b = node.regression.coef_[0]
         c = node.regression.intercept_
 
-        self.assertEqual(node.regression.predict([list(x.values())]), b*x[list(x.keys())[0]] + c)
+        self.assertEqual(node.regression.predict([list(x.values())]), b * x[list(x.keys())[0]] + c)
 
 
 class TestDomainNode(unittest.TestCase):
 
     def setUp(self):
         self.val = 10
-        self.node = DomainNode(name="nome", domains={"x0": (0, 1), "x1": (2, 3)}, val=self.val)
+        d = RealDomain({"x0": RealInterval((0, 1), (True, False)), "x1": RealInterval((2, 3), (True, False))})
+        self.node = DomainNode(name="nome", domains=d, val=self.val)
 
     def tearDown(self) -> None:
         pass

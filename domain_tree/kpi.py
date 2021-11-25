@@ -8,6 +8,7 @@ import numpy as np
 import copy
 from tree import DomainTree, DomainNode
 import altair as alt
+from domain import RealDomain, RealInterval
 
 
 def check_partition_num(original_m: DomainTree, approx_m):
@@ -127,10 +128,11 @@ def summary(original_m, approx_model, n, d):
 
 
 def main():
-    d = {"x0": (0, 1), "x1": (0, 1)}
+    #d = {"x0": (0, 1), "x1": (0, 1)}
+    d = RealDomain({"x0": RealInterval((0, 1), (True, False)), "x1": RealInterval((0, 1), (True, False))})
     tree1 = DomainTree(domains=d, depth_max=5, min_split=0.1)
     tree2 = copy.deepcopy(tree1)
-    tree3 = DomainTree(domains=d, depth_max=5, min_split=0)
+    tree3 = DomainTree(domains=d, depth_max=5, min_split=0.1)
 
     # tree1.print_tree()
     # tree1.visualize_all_domains()

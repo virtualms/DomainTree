@@ -3,14 +3,15 @@
 import unittest
 from domain_tree.tree import DomainTree, DomainNode, NodeNotFoundException
 from domain_tree import kpi
+from domain_tree.domain import RealDomain, RealInterval
 
 
 class TestKPI(unittest.TestCase):
 
     def setUp(self):
         self.depth = 3
-        self.d0 = {"x0": (0, 1), "x1": (0, 1)}
-        self.d1 = {"x0": (1, 2), "x1": (1, 2)}
+        self.d0 = RealDomain({"x0": RealInterval((0, 1), (True, False)), "x1": RealInterval((0, 1), (True, False))})
+        self.d1 = RealDomain({"x0": RealInterval((1, 2), (True, False)), "x1": RealInterval((1, 2), (True, False))})
         self.original_m = DomainTree(self.d0, depth_max=self.depth)
         self.approx_m = DomainTree(self.d0, depth_max=self.depth)
         self.blank_m = DomainTree(self.d0, min_split=1, depth_max=self.depth)
