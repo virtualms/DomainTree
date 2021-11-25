@@ -1,3 +1,4 @@
+import random
 import unittest
 from domain_tree.tree import DomainTree, DomainNode, NodeNotFoundException
 from domain_tree.domain import RealDomain, RealInterval
@@ -34,6 +35,20 @@ class TestDomainTree(unittest.TestCase):
         n = (2 ** 5) / 2
         self.assertEqual(len(tree.leaves), n)
 
+
+    def test_stress_functions(self):
+        for _ in range(10000):
+            tree = DomainTree(domains=self.d0, min_split=0, depth_max=5)
+
+        tree = DomainTree(domains=self.d0, min_split=0, depth_max=10)
+        for _ in range(10000):
+            tree.compute_f({"x0": random.random()})
+
+        with self.assertRaises(NodeNotFoundException):
+            for _ in range(10000):
+                tree.compute_f({"x0": random.random() + 1})
+
+
     def test_contains(self):
         tree = DomainTree(domains=self.d0, min_split=0.5)
         x = {"x0": 0}
@@ -57,6 +72,14 @@ class TestDomainTree(unittest.TestCase):
         x = {"x0": 0.5, "x1": 2.99}
         self.assertTrue(tree.contains(x))
 
+        d = RealDomain({"x0": RealInterval((0, 1), (True, True)), "x1": RealInterval((2, 3), (False, False))})
+        tree = DomainTree(domains=d, min_split=0.5)
+        #tree.print_tree()
+        x = {"x0": 0, "x1": 2}
+        self.assertFalse(tree.contains(x))
+        x = {"x0": 0, "x1": 2.5}
+        self.assertTrue(tree.contains(x))
+
     def test_compute_f(self):
         tree = DomainTree(domains=self.d0, min_split=0.5)
 
@@ -70,6 +93,7 @@ class TestDomainTree(unittest.TestCase):
         c = node.regression.intercept_
 
         self.assertEqual(node.regression.predict([list(x.values())]), b * x[list(x.keys())[0]] + c)
+        self.assertEqual(tree.compute_f(x), node.regression.predict([list(x.values())]))
 
 
 class TestDomainNode(unittest.TestCase):

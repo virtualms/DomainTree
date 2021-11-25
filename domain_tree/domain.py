@@ -117,6 +117,13 @@ class RealInterval:
 
         return f"{left_par(included=self.included[0])}{self.bounds[0]}, {self.bounds[1]}{right_par(included=self.included[1])}"
 
+    def __eq__(self, other):
+        if isinstance(other, RealInterval):
+            return self.bounds == other.bounds and self.included == other.included
+        else:
+            return False
+
+
 
 class AbstractDomain(ABC):
     """
@@ -255,6 +262,12 @@ class RealDomain(AbstractDomain, ABC):
         repr += "-" * n
 
         return repr
+
+    def __eq__(self, other):
+        if isinstance(other, RealDomain):
+            return all(other[k] == v for k,v in self.domains.items())
+        else:
+            return False
 
     def to_str(self):
         return {x: str(val) for x, val in self.domains.items()}

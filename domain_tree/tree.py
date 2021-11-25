@@ -215,7 +215,7 @@ class DomainTree:
     """
 
     def __init__(self, domains: RealDomain, min_split=0, name="NODE", depth_max=3, random=0, coef_bounds=(-5, 5),
-                 rounding=4):
+                 rounding=10):
         self.name = name
         self.domains = domains
         # self.variables = sorted(list(domains.keys()))
@@ -296,6 +296,7 @@ class DomainTree:
                 w = min_ranges[variable]
                 split_value = a + w + ((b - w) - (a + w)) * rand.random()
 
+                #TODO could cause problems
                 split_value = round(split_value, self.rounding)
 
                 # changing bounds
@@ -384,20 +385,18 @@ class DomainTree:
             # else:
             #     raise NodeNotFoundException(f"{x} is non in tree")
 
-            try:
-                node_dx = node.children[1]
-                node_sx = node.children[0]
+            node_dx = node.children[1]
+            node_sx = node.children[0]
 
-                if self.greater(x[var], value, node_dx.domains[var].included[0]) and self.less(x[var], node.domains[var][1], node_dx.domains[var].included[1]):
-                    rec_node = node_dx #dx
-                    return self.__recursive_search__(rec_node, x, verbose)
-                elif self.greater(x[var], node.domains[var][0], node.domains[var].included[0]) and self.less(x[var], value, node_sx.domains[var].included[1]):
-                    rec_node = node_sx #sx
-                    return self.__recursive_search__(rec_node, x, verbose)
-                else:
-                    raise NodeNotFoundException(f"{x} is non in tree")
-            except Exception:
+            if self.greater(x[var], value, node_dx.domains[var].included[0]) and self.less(x[var], node.domains[var][1], node_dx.domains[var].included[1]):
+                rec_node = node_dx #dx
+                return self.__recursive_search__(rec_node, x, verbose)
+            elif self.greater(x[var], node.domains[var][0], node.domains[var].included[0]) and self.less(x[var], value, node_sx.domains[var].included[1]):
+                rec_node = node_sx #sx
+                return self.__recursive_search__(rec_node, x, verbose)
+            else:
                 raise NodeNotFoundException(f"{x} is non in tree")
+
 
     def contains(self, x) -> bool:
         """
@@ -437,7 +436,10 @@ class DomainTree:
         """
 
         # node = next(node for node in self.leaves if node.contains(x))
-        node = self.__recursive_search__(self.tree, frozendict(x), verbose=False)
+        if isinstance(x, dict):
+            x = frozendict(x)
+
+        node = self.__recursive_search__(self.tree, x, verbose=False)
 
         # sorting x
         values = [x[k] for k in sorted(x)]

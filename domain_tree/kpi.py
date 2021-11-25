@@ -46,14 +46,14 @@ def check_r2(approx_model):
     return avg_r2, delta_r2, r2_min, r2_max
 
 
-def matching_bounds(original, approx, conf: float) -> bool:
+def matching_bounds(original, approx, conf: float, rounding=10) -> bool:
     """ Checks if 2 bounds match in respect to a confidence interval."""
     # sx0 = original[0] - conf <= approx[0] <= original[0] + conf
     # dx0 = original[1] - conf <= approx[1] <= original[1] + conf
     # float precision ...
 
-    sx0 = round(original[0] - conf, 8) <= approx[0] <= round(original[0] + conf, 8)
-    dx0 = round(original[1] - conf, 8) <= approx[1] <= round(original[1] + conf, 8)
+    sx0 = round(original[0] - conf, rounding) <= round(approx[0], rounding) <= round(original[0] + conf, rounding)
+    dx0 = round(original[1] - conf, rounding) <= round(approx[1], rounding) <= round(original[1] + conf, rounding)
 
     return sx0 and dx0
 

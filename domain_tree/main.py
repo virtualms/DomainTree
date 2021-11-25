@@ -14,7 +14,7 @@ DEPTH = 5
 NODE_NAME = "node"
 K = 1
 VARIABLES = ["x" + str(i) for i in range(K)]
-DOMAINS = RealDomain({val: RealInterval((0, 1), (True, False)) for i, val in enumerate(VARIABLES)})
+DOMAINS = RealDomain({val: RealInterval((0, 1), (True, True)) for i, val in enumerate(VARIABLES)})
 x = {v: 0.5 for v in VARIABLES}
 RANDOM = 0 # [0, 1]
 MIN_SPLIT = 0.1 # [0, 0.5]
@@ -81,7 +81,7 @@ def main():
     tree.visualize_all_domains()
     # tree.visualize_domains("x0", "x1")
     tree.print_tree()
-    #tree.render_tree()
+    tree.render_tree()
     #print(x)
     print(tree.compute_f(x))
     #print(tree.contains(x))
