@@ -96,7 +96,7 @@ class RealInterval:
         """
         bounds_sx, bounds_dx = self.split_at(split)
         included_sx = (self.included[0], False)
-        included_dx = self.included
+        included_dx = (True, self.included[1])
 
         interval_sx = RealInterval(bounds_sx, included_sx)
         interval_dx = RealInterval(bounds_dx, included_dx)
