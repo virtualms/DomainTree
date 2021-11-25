@@ -27,8 +27,8 @@ class TestDomainTree(unittest.TestCase):
         i3 = RealInterval((0, 1), (True, True))
 
         sx, dx = i0.perfect_split(0.5)
-        self.assertEquals(sx, RealInterval((0, 0.5), (False, False)))
-        self.assertEquals(dx, RealInterval((0.5, 1), (True, False)))
+        self.assertEqual(sx, RealInterval((0, 0.5), (False, False)))
+        self.assertEqual(dx, RealInterval((0.5, 1), (True, False)))
 
         self.assertTrue(i0 == i0)
         self.assertFalse(i0 == i1)
@@ -36,8 +36,8 @@ class TestDomainTree(unittest.TestCase):
         self.assertFalse(i0 == i3)
 
         sx, dx = i3.perfect_split(0.5)
-        self.assertEquals(sx, RealInterval((0, 0.5), (True, False)))
-        self.assertEquals(dx, RealInterval((0.5, 1), (True, True)))
+        self.assertEqual(sx, RealInterval((0, 0.5), (True, False)))
+        self.assertEqual(dx, RealInterval((0.5, 1), (True, True)))
 
         self.assertFalse(i0.contains(0))
         self.assertFalse(i0.contains(1))
