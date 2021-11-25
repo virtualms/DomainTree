@@ -353,10 +353,10 @@ class DomainTree:
 
     # optimized decision tree search
     def greater(self, a, b, included):
-        return a >= b if included[0] else a > b
+        return a >= b if included else a > b
 
     def less(self, a, b, included):
-        return a <= b if included[1] else a < b
+        return a <= b if included else a < b
 
     @lru_cache(maxsize=128, typed=False)
     def __recursive_search__(self, node: DomainNode, x, verbose=False) -> DomainNode:
@@ -384,13 +384,19 @@ class DomainTree:
             # else:
             #     raise NodeNotFoundException(f"{x} is non in tree")
 
-            if self.greater(x[var], value, node.domains[var].included) and self.less(x[var], node.domains[var][1], node.domains[var].included):
-                rec_node = node.children[1]
-                return self.__recursive_search__(rec_node, x, verbose)
-            elif self.greater(x[var], node.domains[var][0], node.domains[var].included) and self.less(x[var], value, node.domains[var].included):
-                rec_node = node.children[0]
-                return self.__recursive_search__(rec_node, x, verbose)
-            else:
+            try:
+                node_dx = node.children[1]
+                node_sx = node.children[0]
+
+                if self.greater(x[var], value, node_dx.domains[var].included[0]) and self.less(x[var], node.domains[var][1], node_dx.domains[var].included[1]):
+                    rec_node = node_dx #dx
+                    return self.__recursive_search__(rec_node, x, verbose)
+                elif self.greater(x[var], node.domains[var][0], node.domains[var].included[0]) and self.less(x[var], value, node_sx.domains[var].included[1]):
+                    rec_node = node_sx #sx
+                    return self.__recursive_search__(rec_node, x, verbose)
+                else:
+                    raise NodeNotFoundException(f"{x} is non in tree")
+            except Exception:
                 raise NodeNotFoundException(f"{x} is non in tree")
 
     def contains(self, x) -> bool:
@@ -404,6 +410,7 @@ class DomainTree:
             self.__recursive_search__(self.tree, frozendict(x), verbose=False)
             return True
         except NodeNotFoundException:
+            print(f"{x} not in tree")
             return False
 
     def node_which_contains(self, x) -> DomainNode:
@@ -444,7 +451,7 @@ class DomainTree:
         """
         print(RenderTree(self.tree))
 
-    def render_tree(self, name="test", path="./imgs/"):
+    def render_tree(self, name="test", path="../imgs/"):
         """
         Graphically renders the tree structure
         :param name: name of the image

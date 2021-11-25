@@ -75,7 +75,7 @@ class RealInterval:
         :return:
         """
         if not self.contains(split):
-            raise Exception("The split point is not present in the domain")
+            raise Exception(f"The split point {split} is not present in the domain")
 
         bounds_sx = (self.bounds[0], split)
         bounds_dx = (split, self.bounds[1])
