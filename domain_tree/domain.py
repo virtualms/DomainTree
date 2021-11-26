@@ -43,8 +43,8 @@ class RealInterval:
         :param bounds: bounds of the interval in tuple form. e.g. (0, 1)
         :param included: tells if the bounds are included e.g for [0, 1) is (True, False)
         """
-        self.bounds = bounds
-        self.included = included
+        self.bounds = bounds if bounds[1] >= bounds[0] else (bounds[1], bounds[0])
+        self.included = included if bounds[1] >= bounds[0] else (included[1], included[0])
 
     def contains(self, x: float):
         """
@@ -192,9 +192,6 @@ class RealDomain(AbstractDomain, ABC):
         :param x: the point
         :return: True/False
         """
-        if isinstance(x, Point):
-            x = p.coordinates
-
         vars_in_bounds = (self.contains_single_var(x[var], var) for var in self.domains)
         return all(vars_in_bounds)
 
@@ -284,7 +281,7 @@ class Split:
     @property
     def dict_view(self):
         return {"node_type": self.node_type, "split_var": self.split_var, "split_value": self.split_value,
-                "intercept": self.intercept, "coefficients": None}
+                "intercept": self.intercept, "coefficients": self.coefficients}
 
     def __getitem__(self, item):
         return self.dict_view[item]
